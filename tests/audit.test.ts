@@ -80,17 +80,11 @@ describe('review and follow-up semantics', () => {
     case_snapshot: { review_period: { start: '2026-01-01', end: '2026-04-01' }, evidence: [] },
     assessment: { label: 'INSUFFICIENT_INFORMATION', missing_information: [{ retrievable: true }] },
   }
-  it('requires the original successful run, a retrievable gap and complete dates', () => {
-    expect(followupBlock(audit, user, false)).toBe('')
-    expect(followupBlock({ ...audit, parent_run_id: 'parent' }, user, false)).toBeTruthy()
-    expect(followupBlock({ ...audit, status: 'FAILED' }, user, false)).toBeTruthy()
-    expect(
-      followupBlock(
-        { ...audit, assessment: { ...audit.assessment, label: 'PARTIALLY_SUPPORTED' } },
-        user,
-        false,
-      ),
-    ).toBeTruthy()
+  it('uses only backend eligibility and fails closed for older responses', () => {
+    expect(followupBlock({ ...audit, followup_eligible: true })).toBe('')
+    expect(followupBlock({ ...audit, followup_eligible: false })).toBeTruthy()
+    expect(followupBlock(audit)).toBeTruthy()
+    expect(followupBlock({ ...audit, assessment: { label: 'PARTIALLY_SUPPORTED' }, followup_eligible: true })).toBe('')
   })
   it('sends original label for accept, chosen label for modify and null for request-more', () => {
     const form: any = {

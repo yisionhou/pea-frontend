@@ -16,6 +16,10 @@ const dim = {
   evidence_ids: ['ev1'],
 }
 export const audit = {
+  followup_eligible: true,
+  followup_ineligible_reasons: [],
+  followup_agent_profiles: ['tiny'],
+  actionable_missing_information: [{ gap_id: 'g1', description: 'Provide the employee’s Q2 target.', retrievable: true }],
   run_id: 'audit_test',
   case_id: 'case_test',
   status: 'SUCCEEDED',

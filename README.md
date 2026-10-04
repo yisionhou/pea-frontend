@@ -77,7 +77,7 @@ The frontend `.env` contains public configuration only. `VITE_` settings are inc
 | `VITE_API_BASE_URL` | Empty | Same-origin API requests; set an API origin for a separate backend deployment |
 | `API_PROXY_TARGET` | `http://127.0.0.1:8000` | Backend target for the development proxy |
 | `VITE_MODEL_PROFILES` | `deepseek,claude` | Available audit model profile names |
-| `VITE_RUBRIC_VERSION` | `v0.4` | Requested audit rubric version |
+| `VITE_RUBRIC_VERSION` | `v1.0` | Requested audit rubric version; restart the backend with the matching rubric configuration |
 | `VITE_ENABLE_EVALUATION_SUBMIT` | `false` | Enable evaluation submission in the UI |
 | `VITE_EVALUATION_PROFILES` | `core_dev,core_holdout,agent_eval` | Evaluation profiles, filtered by account permissions |
 | `VITE_AGENT_PROFILE` | `tiny` | Follow-up agent profile |

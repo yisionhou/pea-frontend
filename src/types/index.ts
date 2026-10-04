@@ -83,6 +83,10 @@ export interface Review {
   evidence_ids?: string[]
 }
 export interface Audit {
+  followup_eligible?: boolean
+  followup_ineligible_reasons?: string[]
+  followup_agent_profiles?: string[]
+  actionable_missing_information?: Assessment['missing_information']
   run_id: string
   case_id: string
   status: string
@@ -107,6 +111,9 @@ export interface ReviewFormData {
   evidence_ids: string[]
 }
 export interface Trace {
+  normalized_search_terms?: string[]
+  retrieval_version?: string
+  reason?: string
   step: number
   tool_name?: string
   arguments?: { query?: string; limit?: number }
@@ -116,6 +123,8 @@ export interface Trace {
   [key: string]: unknown
 }
 export interface Followup {
+  started_at?: string | null
+  finished_at?: string | null
   agent_run_id: string
   initial_run_id: string
   reaudit_run_id: string | null

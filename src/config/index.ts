@@ -13,7 +13,7 @@ export const config = {
   holdoutFrozen: env.VITE_HOLDOUT_FROZEN === 'true',
   labelsConfirmed: env.VITE_LABELS_CONFIRMED === 'true',
   rubricConfirmed: env.VITE_RUBRIC_CONFIRMED === 'true',
-  rubricVersion: env.VITE_RUBRIC_VERSION || 'v0.4',
+  rubricVersion: env.VITE_RUBRIC_VERSION || 'v1.0',
   modelProfiles: list(env.VITE_MODEL_PROFILES, 'deepseek,claude'),
   evaluationProfiles: list(env.VITE_EVALUATION_PROFILES, 'core_dev,core_holdout,agent_eval'),
   agentProfile: env.VITE_AGENT_PROFILE || 'tiny',

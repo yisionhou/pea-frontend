@@ -51,21 +51,8 @@ export function validateAudit(input: AuditInput, user: User | null): Record<stri
   if (input.mode === 'llm' && !input.model_profile) errors.model_profile = 'Select a model profile.'
   return errors
 }
-export function followupBlock(audit: Audit, user: User | null, allowPartial: boolean): string {
-  if (!user?.permissions.includes('followup')) return 'Follow-up permission is required.'
-  if (audit.status !== 'SUCCEEDED' || !audit.assessment)
-    return 'A successful audit with an assessment is required.'
-  if (audit.parent_run_id) return 'Follow-up is only available on the initial audit.'
-  if (!audit.case_snapshot.review_period?.start || !audit.case_snapshot.review_period?.end)
-    return 'A complete review period is required.'
-  if (!audit.assessment.missing_information.some((g) => g.retrievable))
-    return 'No retrievable information gaps were identified.'
-  if (
-    audit.assessment.label !== 'INSUFFICIENT_INFORMATION' &&
-    !(allowPartial && audit.assessment.label === 'PARTIALLY_SUPPORTED')
-  )
-    return 'This result is not eligible for follow-up in this environment.'
-  return ''
+export function followupBlock(audit: Audit): string {
+  return audit.followup_eligible ? '' : 'Follow-up is unavailable for this audit.'
 }
 export function reviewPayload(audit: Audit, form: ReviewFormData) {
   return {

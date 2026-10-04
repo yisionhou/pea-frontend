@@ -31,7 +31,7 @@ const router = createRouter({
         {
           path: 'follow-ups/:agentRunId',
           component: () => import('../pages/FollowupPage.vue'),
-          meta: { title: 'Follow-up Details' },
+          meta: { title: 'Evidence Follow-up' },
         },
         {
           path: 'evaluations/new',

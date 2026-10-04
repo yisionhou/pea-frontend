@@ -22,10 +22,12 @@ const { data: audit, error, loading, reload } = useRecord<Audit>('audit', id),
   followup = useSubmission(),
   dialog = ref(false)
 const blocked = computed(() =>
-  audit.value
-    ? followupBlock(audit.value, auth.user, config.allowPartialFollowup)
-    : 'Loading audit.',
+  audit.value ? followupBlock(audit.value) : 'Loading audit.',
 )
+const agentProfile = computed(() => {
+  const profiles = audit.value?.followup_agent_profiles || []
+  return profiles.includes(config.agentProfile) ? config.agentProfile : profiles[0]
+})
 const evidenceIds = computed(
   () =>
     audit.value?.case_snapshot.evidence.flatMap((e) => (e.evidence_id ? [e.evidence_id] : [])) ||
@@ -41,7 +43,7 @@ async function start() {
   if (blocked.value) return
   const result = await followup.submit<Followup>(
     `/v1/audits/${encodeURIComponent(id)}/follow-ups`,
-    { agent_profile: config.agentProfile },
+    { agent_profile: agentProfile.value },
     120000,
   )
   if (result) {
@@ -58,16 +60,6 @@ async function start() {
         {{ id }}<span v-if="audit"> · {{ audit.case_snapshot.employee_id }}</span>
       </p>
     </div>
-    <el-tooltip
-      v-if="auth.can('followup')"
-      :content="blocked || 'Retrieve additional evidence and re-audit'"
-      placement="bottom"
-      ><span
-        ><el-button type="primary" :disabled="!!blocked" @click="dialog = true"
-          >Request follow-up</el-button
-        ></span
-      ></el-tooltip
-    >
   </div>
   <ErrorState :error="error" retry @retry="reload" /><el-skeleton
     v-if="loading"
@@ -100,6 +92,14 @@ async function start() {
         >
         <p v-for="reason in audit.human_review_reasons" :key="reason">{{ title(reason) }}</p>
       </div>
+    </section>
+    <section v-if="!blocked" class="panel agent-cta">
+      <div><span class="eyebrow">Optional extension · Evidence Follow-up</span>
+        <h2>Missing information</h2>
+        <p v-for="gap in audit.actionable_missing_information" :key="gap.gap_id" class="prose">{{ gap.description }}</p>
+        <p class="muted">Search for missing facts. New evidence may support, contradict, or leave the claim unresolved.</p>
+      </div>
+      <el-button type="primary" @click="dialog = true">Find Missing Evidence</el-button>
     </section>
     <div class="grid two">
       <section class="panel">
@@ -206,14 +206,14 @@ async function start() {
       }" /></template
   ><el-dialog
     v-model="dialog"
-    title="Request follow-up"
+    title="Run Evidence Follow-up"
     width="520px"
     :close-on-click-modal="!followup.busy.value"
     :show-close="!followup.busy.value"
     :close-on-press-escape="!followup.busy.value"
     ><p>Search authorized sources for missing evidence, then re-audit if new material is found.</p>
     <p>
-      Profile: <strong>{{ config.agentProfile }}</strong>
+      Profile: <strong>{{ agentProfile }}</strong>
     </p>
     <p class="notice">
       This operation may incur model API costs. The request can take up to two minutes.

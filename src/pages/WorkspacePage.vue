@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { config } from '../config'
@@ -9,6 +10,10 @@ const auth = useAuthStore(),
   router = useRouter(),
   kind = ref<RecordKind>('audit'),
   id = ref('')
+const followupDialog = ref(false), initialId = ref('')
+function openInitial() {
+  if (initialId.value.trim()) void router.push(recordPath('audit', initialId.value.trim()))
+}
 const names = { audit: 'Audit', followup: 'Follow-up', evaluation: 'Experiment' }
 function open() {
   if (id.value.trim()) void router.push(recordPath(kind.value, id.value.trim()))
@@ -22,7 +27,7 @@ function open() {
     </div>
     <span class="welcome">Welcome, {{ auth.displayName }}</span>
   </div>
-  <div class="grid two shortcuts">
+  <div class="grid shortcuts agent-shortcuts">
     <section v-if="auth.can('audit')" class="dark-panel shortcut">
       <div class="feature-icon">
         <el-icon><Document /></el-icon>
@@ -32,6 +37,13 @@ function open() {
         <p>Submit a claim and supporting evidence.</p>
       </div>
       <el-button @click="router.push('/audits/new')">Create audit</el-button>
+    </section>
+    <section v-if="auth.can('followup')" class="dark-panel shortcut">
+      <div class="feature-icon"><el-icon><Search /></el-icon></div>
+      <div><h2>Evidence Follow-up Agent</h2>
+        <p>Retrieve missing facts from approved HR sources and re-audit the claim.</p>
+      </div>
+      <el-button @click="followupDialog = true">Open follow-up</el-button>
     </section>
     <section v-if="auth.can('evaluate')" class="dark-panel shortcut">
       <div class="feature-icon">
@@ -82,4 +94,15 @@ function open() {
       ></el-table
     >
   </section>
+  <el-dialog v-model="followupDialog" title="Open evidence follow-up" width="520px">
+    <p>Follow-up begins with an eligible initial audit. Open its result to review the missing facts.</p>
+    <form @submit.prevent="openInitial">
+      <el-input v-model="initialId" aria-label="Initial audit ID" placeholder="Enter an initial audit ID" />
+      <el-button type="primary" native-type="submit" :disabled="!initialId.trim()">Open initial audit</el-button>
+    </form>
+    <p>Not started yet? <router-link to="/audits/new">Create an audit</router-link>.</p>
+    <p v-for="record in auth.recent.filter(r => r.kind === 'followup').slice(0, 3)" :key="record.id">
+      <router-link :to="recordPath('followup', record.id)">Open {{ record.id }}</router-link>
+    </p>
+  </el-dialog>
 </template>

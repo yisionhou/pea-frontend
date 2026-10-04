@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test'
 import { user, audit, followup, evaluation } from './fixtures'
+import { loadEnv } from 'vite'
 test.beforeEach(async ({ page }) => {
   await page.route('**/v1/**', async (route) => {
     const path = new URL(route.request().url()).pathname
@@ -72,7 +73,7 @@ test('seven page layouts, missing followup evidence, partial metrics, mobile', a
   for (const [path, heading, name] of [
     ['/audits/new', 'New Audit', '03-new-audit'],
     ['/audits/audit_test', 'Audit Details', '04-audit-detail'],
-    ['/follow-ups/agent_test', 'Follow-up Details', '05-followup-detail'],
+    ['/follow-ups/agent_test', 'Evidence Follow-up', '05-followup-detail'],
     ['/evaluations/new', 'New Evaluation', '06-new-evaluation'],
     ['/evaluations/exp_test', 'Evaluation Report', '07-evaluation-report'],
   ]) {
@@ -83,8 +84,11 @@ test('seven page layouts, missing followup evidence, partial metrics, mobile', a
       await expect(page.getByText('Evidence text is not available.')).toBeVisible()
       await expect(page.getByText('No re-audit result')).toBeVisible()
     }
-    if (path === '/evaluations/new')
-      await expect(page.getByRole('button', { name: 'Start evaluation' })).toBeDisabled()
+    if (path === '/evaluations/new') {
+      const enabled = loadEnv('production', process.cwd(), 'VITE_').VITE_ENABLE_EVALUATION_SUBMIT === 'true'
+      if (enabled) await expect(page.getByRole('button', { name: 'Start evaluation' })).toBeEnabled()
+      else await expect(page.getByRole('button', { name: 'Start evaluation' })).toBeDisabled()
+    }
   }
   await expect(page.getByText('1 / 6 tasks completed')).toBeVisible()
   await page.getByRole('tab', { name: 'Confusion matrix' }).click()
@@ -151,7 +155,7 @@ test('followup requires explicit dialog submission and sends the configured prof
 }) => {
   await login(page)
   await page.goto('/audits/audit_test')
-  await page.getByRole('button', { name: 'Request follow-up', exact: true }).click()
+  await page.getByRole('button', { name: 'Find Missing Evidence', exact: true }).click()
   await expect(page.getByRole('dialog')).toBeVisible()
   const post = page.waitForRequest(
     (r) => r.url().endsWith('/audits/audit_test/follow-ups') && r.method() === 'POST',
@@ -161,5 +165,5 @@ test('followup requires explicit dialog submission and sends the configured prof
     agent_profile: 'tiny',
     idempotency_key: expect.any(String),
   })
-  await expect(page.getByRole('heading', { name: 'Follow-up Details' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Evidence Follow-up' })).toBeVisible()
 })
