@@ -2,6 +2,17 @@
 
 The Vue 3 web application for the Performance Evidence Auditor (PEA), built with TypeScript, Element Plus, Vue Router, Pinia, and Vite. It connects to the [FastAPI backend](../pea-backend/README.md) and uses an English black, white, and gray interface.
 
+## Submission documentation
+
+The four submission documents are available below. See the [documentation index](docs/submission/README.md) for reference-path conventions and the original verification scope.
+
+| Category | Markdown | PDF |
+| --- | --- | --- |
+| Product documentation | [Read](docs/submission/product_documentation.md) | [PDF](docs/submission/pdf/PEA_Product_Documentation.pdf) |
+| Data documentation | [Read](docs/submission/data_documentation.md) | [PDF](docs/submission/pdf/PEA_Data_Documentation.pdf) |
+| Evaluation documentation | [Read](docs/submission/evaluation_documentation.md) | [PDF](docs/submission/pdf/PEA_Evaluation_Documentation.pdf) |
+| Code and run guide | [Read](docs/submission/code_and_run_guide.md) | [PDF](docs/submission/pdf/PEA_Code_and_Run_Guide.pdf) |
+
 ## Implemented Pages
 
 | Page | Implemented Content |
